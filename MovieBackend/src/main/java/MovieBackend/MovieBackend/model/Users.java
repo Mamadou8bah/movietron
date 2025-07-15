@@ -1,8 +1,6 @@
 package MovieBackend.MovieBackend.model;
 
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Entity;
-import jakarta.persistence.OneToMany;
+import jakarta.persistence.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -11,6 +9,10 @@ import java.util.List;
 
 @Entity
 public class Users implements UserDetails {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private int id;
     private String fullName;
     private String email;
     private String password;
@@ -59,5 +61,13 @@ public class Users implements UserDetails {
 
     public void setPreferences(List<Preference> preferences) {
         this.preferences = preferences;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 }
