@@ -32,4 +32,32 @@ public class Users implements UserDetails {
     public String getUsername() {
         return email;
     }
+
+    public String getFullName() {
+        return fullName;
+    }
+
+    public void setFullName(String fullName) {
+        this.fullName = fullName;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public List<Preference> getPreferences() {
+        return preferences;
+    }
+
+    public void setPreferences(List<Preference> preferences) {
+        this.preferences = preferences;
+    }
 }
