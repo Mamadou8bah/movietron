@@ -3,6 +3,7 @@ package MovieBackend.MovieBackend.service;
 import MovieBackend.MovieBackend.dto.LoginRequest;
 import MovieBackend.MovieBackend.dto.LoginResponse;
 import MovieBackend.MovieBackend.dto.PasswordUpdateRequest;
+import MovieBackend.MovieBackend.dto.UserDTo;
 import MovieBackend.MovieBackend.model.Users;
 import MovieBackend.MovieBackend.repository.UserRepository;
 import MovieBackend.MovieBackend.util.JwtUtil;
@@ -22,14 +23,16 @@ public class AuthService {
 
     @Autowired
     private JwtUtil util;
-    public Users register(Users users){
+    public UserDTo register(Users users){
         String email=users.getEmail();
         Users user=repository.findByEmail(email);
         if(user!=null){
             throw  new RuntimeException("Email Already Exist");
         }
             users.setPassword(encoder.encode(users.getPassword()));
-            return repository.save(users);
+            Users users1=repository.save(users);
+
+            return new UserDTo(users1.getId(), users1.getFullName(), users1.getEmail(), users1.getPreferences());
 
     }
     public LoginResponse login(LoginRequest request){
@@ -42,7 +45,7 @@ public class AuthService {
             return new LoginResponse(util.generateToken(users.getEmail()));
     }
 
-    public Users getLoggedInUser(){
+    public UserDTo getLoggedInUser(){
         Authentication authentication=SecurityContextHolder.getContext().getAuthentication();
 
         if(authentication==null){
@@ -51,31 +54,32 @@ public class AuthService {
 
             String email=authentication.getName();
             Users users=repository.findByEmail(email);
-            return users;
+            return new UserDTo(users.getId(), users.getFullName(), users.getEmail(), users.getPreferences());
 
     }
-    public Users deleteUser(int id){
+    public UserDTo deleteUser(int id){
         Users users=repository.findById(id).orElseThrow(()->new RuntimeException("Could not find User"));
         Authentication authentication=SecurityContextHolder.getContext().getAuthentication();
-        if (authentication==null){
+        if (authentication == null || !authentication.isAuthenticated()) {
             throw new RuntimeException("Not Authorized");
-        }else {
+        }
+        else {
            String email=authentication.getName();
            Users user=repository.findByEmail(email);
            if (user.getId()!=id){
                throw new RuntimeException("Not Authorized");
            }
            repository.delete(user);
-           return user;
+           return new UserDTo(user.getId(), user.getFullName(), user.getEmail(), user.getPreferences());
 
         }
     }
 
     public String changePassword(PasswordUpdateRequest request){
         Authentication authentication=SecurityContextHolder.getContext().getAuthentication();
-        if(authentication==null){
+        if (authentication == null || !authentication.isAuthenticated()) {
             throw new RuntimeException("Not Authorized");
-        }else {
+        } else {
             String email=authentication.getName();
             Users users=repository.findByEmail(email);
 
